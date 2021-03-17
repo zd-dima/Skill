@@ -1,3 +1,3 @@
-# Skill
+# SkillFactroy
 
 Репозиторий для проектов SkillFactory
