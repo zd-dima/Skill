@@ -1,0 +1,40 @@
+{% extends 'default.html' %}
+{% load filters %}
+
+{% block title %} Delete publication {% endblock title %}
+
+{% block content %}
+<h2>Вы действительно хотите удалить эту публикацию?</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Заголовок
+            </th>
+            <th>
+                Дата публикации
+            </th>
+            <th>
+                Предпоказ
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <a href="/news/{{ post.id }}">{{ post.title|truncatechars:'30'|censor }}</a>
+            </td>
+            <td>
+                {{ post.date|date:'d M Y' }}
+            </td>
+            <td>
+                {{ post.text|truncatechars:50|censor }}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Подтвердить"></form>
+{% endblock content %}

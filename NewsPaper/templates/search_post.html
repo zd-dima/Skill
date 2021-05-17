@@ -1,0 +1,89 @@
+{% extends 'default.html' %}
+{% load filters %}
+
+{% block title %}
+News
+{% endblock title %}
+
+{% block content %}
+
+<h1>Поиск</h1>
+{% if req %}
+    <h4>Найдено статей - {{ news_length }}</h4>
+{% endif %}
+<hr>
+<form method="get">
+    {{ filter.form }}
+    <input type="submit" value="Поиск" />
+</form>
+{% if posts and req %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Заголовок
+                </th>
+                <th>
+                    Дата публикации
+                </th>
+                <th>
+                    Предпоказ
+                </th>
+                <th colspan="2">
+                    Действия
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+                <tr>
+                    <td>
+                        <a href="/news/{{ post.id }}">{{ post.title|truncatechars:'30'|censor }}</a>
+                    </td>
+                    <td>
+                        {{ post.date|date:'d M Y' }}
+                    </td>
+                    <td>
+                        {{ post.text|truncatechars:50|censor }}
+                    </td>
+                    <td>
+                        <a href="/news/update/{{ post.id }}">Изменить</a>
+                    </td>
+                    <td>
+                        <a href="/news/delete/{{ post.id }}">Удалить</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% elif req %}
+    <br><h3>По данному запросу ничего не найдено!</h3>
+{% else %}
+    <br><h3>Выберите параметры для поиска!</h3>
+{% endif %}
+
+<br>
+
+{% if is_paginated and req %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?{% param_replace page=1 %}">First</a></li>
+                {% if page_obj.previous_page_number != 1 %}
+                    <li class="page-item"><a class="page-link" href="?{% param_replace page=page_obj.previous_page_number %}">Previous</a></li>
+                {% endif %}
+            {% endif %}
+
+            <li class="page-item disabled"><a class="page-link">Page {{ page_obj.number }} of {{ paginator.num_pages }}</a></li>
+
+            {% if page_obj.has_next %}
+                {% if page_obj.next_page_number != paginator.num_pages %}
+                    <li class="page-item"><a class="page-link" href="?{% param_replace page=page_obj.next_page_number %}">Next</a></li>
+                {% endif %}
+                <li class="page-item"><a class="page-link" href="?{% param_replace page=paginator.num_pages %}">Last</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+
+{% endblock content %}
