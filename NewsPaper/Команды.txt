@@ -1,0 +1,58 @@
+>>> u3 = User.objects.create_user(username='User1') 
+>>> Author.objects.create(authorUser=u3)
+<Author: Author object (1)>
+>>> u4 = User.objects.create_user(username='User2')
+>>> Author.objects.create(authorUser=u4)
+<Author: Author object (2)>
+>>> Category.objects.create(name='Sport')
+<Category: Category object (1)>
+>>> Category.objects.create(name='News')
+<Category: Category object (2)>
+>>> Category.objects.create(name='IT')
+<Category: Category object (3)>
+>>> Category.objects.create(name='Education')
+<Category: Category object (4)>
+>>> author = Author.objects.get(id=1)  
+>>> author
+<Author: Author object (1)>
+>>> Post.objects.create(author=author, categoryType='NW', title='News', text='Breaking news. The rocket fell')
+<Post: Post object (1)>
+>>> author = Author.objects.get(id=2)  
+>>> author
+<Author: Author object (2)>
+>>> Post.objects.create(author=author, categoryType='AR', title='Article2', text='Scientific article. Bigfoot exists')
+<Post: Post object (2)>
+>>> author = Author.objects.get(id=1)  
+>>> author
+<Author: Author object (1)>
+>>> Post.objects.create(author=author, categoryType='AR', title='Article', text='Computer article. WD invented the 100TB SSD')
+<Post: Post object (3)>
+>>> Post.objects.get(id=1).postCategory.add(Category.objects.get(id=1))      
+>>> Comment.objects.create(commentPost=Post.objects.get(id=1), commentUser=Author.objects.get(id=1).authorUser, text='anytextbyauthor')
+<Comment: Comment object (1)>
+>>> Comment.objects.get(id=1).like()
+>>> Comment.objects.get(id=1).dislike() 
+>>> Comment.objects.get(id=1).dislike()
+>>> Comment.objects.get(id=1).dislike()
+>>> Author.objects.get(id=1)
+<Author: Author object (1)>
+>>> a = Author.objects.get(id=1) 
+>>> a.update_rating()
+>>> a.ratingAuthor
+-2
+>>> Post.objects.get(id=1).like()
+>>> a.update_rating() 
+>>> a.ratingAuthor
+1
+>>> a = Author.objects.order_by('-ratingAuthor')
+>>> a
+<QuerySet [<Author: Author object (1)>]>
+>>> for i in a:
+...     i.ratingAuthor
+...     i.authorUser.username
+... 
+1
+'User1'
+0
+'User2'
+>>>     
