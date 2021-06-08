@@ -2,80 +2,112 @@
 {% load filters %}
 
 {% block title %}
-News
+Все публикации
 {% endblock title %}
 
 {% block content %}
-
-<h1>Все публикации</h1>
-<h4>Всего публикаций - {{ news_length }}</h4>
-<hr>
-{% if posts %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    Заголовок
-                </th>
-                <th>
-                    Дата публикации
-                </th>
-                <th>
-                    Предпоказ
-                </th>
-                <th colspan="2">
-                    Действия
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for post in posts %}
+<div class="text-center">
+    <h1>Все публикации</h1>
+    <h4>Всего публикаций - {{ news_length }}</h4>
+    <h1>{{ subscriptions }}</h1>
+    {% if is_not_author and request.user.is_authenticated %}
+        <a href="/news/upgrade/">
+            <button class="btn btn-light btn-link">
+                Стать автором
+            </button>
+        </a>
+    {% endif %}
+    <hr>
+    {% if posts %}
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>
-                        <a href="/news/{{ post.id }}">{{ post.title|truncatechars:'30'|censor }}</a>
-                    </td>
-                    <td>
-                        {{ post.date|date:'d M Y' }}
-                    </td>
-                    <td>
-                        {{ post.text|truncatechars:50|censor }}
-                    </td>
-                    <td>
-                        <a href="/news/update/{{ post.id }}">Изменить</a>
-                    </td>
-                    <td>
-                        <a href="/news/delete/{{ post.id }}">Удалить</a>
-                    </td>
+                    <th>
+                        Дата
+                    </th>
+                    <th>
+                        Категории
+                    </th>
+                    <th>
+                        Заголовок
+                    </th>
+                    <th>
+                        Предпоказ
+                    </th>
+                    {% if not is_not_author %}
+                        <th></th>
+                    {% endif %}
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <h2>Постов нет!</h2>
-{% endif %}
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                    <tr>
+                        <td>
+                            {{ post.date|date:'d.m.Y' }}
+                        </td>
+                        <td>
+                            {% for c in categories %}
+                                {% if c.post.id == post.id %}
+                                    <a href="/news/category/{{ c.category.id }}">
+                                        <button class="btn btn-light btn-link">
+                                            {{ c.category }}
+                                        </button>
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <a href="/news/{{ post.id }}">{{ post.title|truncatechars:'30'|censor }}</a>
+                        </td>
+                        <td>
+                            {{ post.text|truncatechars:50|censor }}
+                        </td>
+                        {% if not is_not_author %}
+                          <td>
+                            <div class="dropdown">
+                              <button class="btn btn-light dropdown-toggle border-0" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                {% if post.author.user.username == request.user.username %}
+                                  <a class="dropdown-item" href="/news/update/{{ post.id }}">Изменить</a>
+                                  <a class="dropdown-item" href="/news/delete/{{ post.id }}">Удалить</a>
+                                {% else %}
+                                  <a class="dropdown-item" href="/news/{{ post.id }}">Посмотреть</a>
+                                {% endif %}
+                              </div>
+                            </div>
+                          </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h2>Постов нет!</h2>
+    {% endif %}
 
-<br>
+    <br>
 
-{% if is_paginated %}
-    <nav>
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?{% param_replace page=1 %}">First</a></li>
-                {% if page_obj.previous_page_number != 1 %}
-                    <li class="page-item"><a class="page-link" href="?{% param_replace page=page_obj.previous_page_number %}">Previous</a></li>
+    {% if is_paginated %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?{% param_replace page=1 %}">First</a></li>
+                    {% if page_obj.previous_page_number != 1 %}
+                        <li class="page-item"><a class="page-link" href="?{% param_replace page=page_obj.previous_page_number %}">Previous</a></li>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
 
-            <li class="page-item disabled"><a class="page-link">Page {{ page_obj.number }} of {{ paginator.num_pages }}</a></li>
+                <li class="page-item disabled"><a class="page-link">Page {{ page_obj.number }} of {{ paginator.num_pages }}</a></li>
 
-            {% if page_obj.has_next %}
-                {% if page_obj.next_page_number != paginator.num_pages %}
-                    <li class="page-item"><a class="page-link" href="?{% param_replace page=page_obj.next_page_number %}">Next</a></li>
+                {% if page_obj.has_next %}
+                    {% if page_obj.next_page_number != paginator.num_pages %}
+                        <li class="page-item"><a class="page-link" href="?{% param_replace page=page_obj.next_page_number %}">Next</a></li>
+                    {% endif %}
+                    <li class="page-item"><a class="page-link" href="?{% param_replace page=paginator.num_pages %}">Last</a></li>
                 {% endif %}
-                <li class="page-item"><a class="page-link" href="?{% param_replace page=paginator.num_pages %}">Last</a></li>
-            {% endif %}
-        </ul>
-    </nav>
-{% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
 
 {% endblock content %}

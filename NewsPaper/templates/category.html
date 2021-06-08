@@ -1,0 +1,90 @@
+{% extends 'default.html' %}
+{% load filters %}
+
+{% block title %}
+{{ category }}
+{% endblock title %}
+
+{% block content %}
+<div class="text-center">
+    <div class="row">
+        <div class="col-sm-8 my-auto">
+            <h1>{{ category }}</h1>
+            <h6>{{ subscribers_count }} подписаны</h6>
+        </div>
+        <div class="col-sm-4 my-auto">
+            {% if is_subscriber %}
+                <a href="/news/unsubscribe/{{ category.id }}">
+                    <button class="btn btn-secondary">Отписаться</button>
+                </a>
+            {% else %}
+                <a href="/news/subscribe/{{ category.id }}">
+                    <button class="btn btn-danger">Подписаться</button>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12"><h5>{{ category.description }}</h5></div>
+    </div>
+    <hr>
+    <br>
+    {% if posts %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Дата публикации
+                    </th>
+                    <th>
+                        Заголовок
+                    </th>
+                    <th>
+                        Предпоказ
+                    </th>
+                    {% if not is_not_author %}
+                        <th colspan="2">
+                            Действия
+                        </th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                    <tr>
+                        <td>
+                            {{ post.date|date:'d M Y' }}
+                        </td>
+                        <td>
+                            <a href="/news/{{ post.id }}">{{ post.title|truncatechars:'30'|censor }}</a>
+                        </td>
+                        <td>
+                            {{ post.text|truncatechars:50|censor }}
+                        </td>
+                        {% if not is_not_author %}
+                            {% if post.author.user.username == request.user.username %}
+                                <td>
+                                    <a href="/news/update/{{ post.id }}">Изменить</a>
+                                </td>
+                                <td>
+                                    <a href="/news/delete/{{ post.id }}">Удалить</a>
+                                </td>
+                            {% else %}
+                                <td colspan="2">
+                                    <a href="/news/{{ post.id }}">Посмотреть</a>
+                                </td>
+                            {% endif %}
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    <br>
+    <a href="/news/search?author=&title=&datetime=&categories={{ category.id }}">
+        <button class="btn btn-light">
+            Больше новостей из этой категории...
+        </button>
+    </a>
+</div>
+{% endblock content %}

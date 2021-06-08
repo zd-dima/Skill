@@ -1,16 +1,56 @@
 {% extends 'default.html' %}
 
 {% block title %}
-Information
+{% if is_create_view %}
+  Добавление новых постов
+{% else %}
+  Редактирование постов
+{% endif %}
 {% endblock title %}
 
 {% block content %}
 
-<h1>Информация</h1>
 <form method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Готово"/>
+  {% csrf_token %}
+  <div class="form-group">
+    <div class="form-row">
+      <div class="col">
+        <label>Тип</label>
+        {{ form.type }}
+      </div>
+      <div class="col">
+        <label>Название</label>
+        {{ form.title }}
+      </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Категории</label>
+    <div class="row col">
+    {% for field in form.categories %}
+      <div class="form-check col-sm-4">
+        {{ field }}
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Текст</label>
+    {{ form.text }}
+  </div>
+  {% if is_create_view %}
+    <div class="form-check">
+      {{ form.mailing }}
+      <label class="form-check-label" for="mailing">Рассылка по e-mail</label>
+    </div>
+    <div class="text-center">
+      <label class="col">Обратите внимание, что вы не можете опубликовать более 3 постов в день</label>
+      <button class="btn btn-primary" type="submit">Добавить</button>
+    </div>
+  {% else %}
+    <div class="text-center">
+      <button class="btn btn-primary" type="submit">Изменить</button>
+    </div>
+  {% endif %}
 </form>
-
 {% endblock content %}
